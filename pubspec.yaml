@@ -38,6 +38,7 @@ dependencies:
   http:
   fl_chart:
   flutter_weather_icons:
+  intl:
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -90,3 +91,6 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
+
+# Api key
+# 158967843a4e4cf212969a5b6480d58c
