@@ -3,6 +3,8 @@
 
 The Zaifi Weather App is a simple Flutter application that allows users to check the current temperature and view a forecast graph for the next three hours based on the OpenWeatherMap API.
 
+![weather app](https://github.com/Zaifi059/Weatherapp/assets/125743722/28a25a0c-63ee-4fa2-8d46-25b66d3b366f)
+
 ## Features
 
 - **Current Temperature**: Display the current temperature and weather conditions for a given city.
