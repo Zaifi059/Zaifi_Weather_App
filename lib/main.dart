@@ -33,6 +33,7 @@ class _WeatherPageState extends State<WeatherPage> {
   String currentWeather = '';
   String humidity = '';
   List dailyForecastData = [];
+  bool showDailyForecast = false; // Track if daily forecast should be shown
 
   Future<void> _fetchWeatherData() async {
     final geocodingUrl = Uri.parse(
@@ -63,6 +64,12 @@ class _WeatherPageState extends State<WeatherPage> {
     }
   }
 
+  void _toggleDailyForecast() {
+    setState(() {
+      showDailyForecast = !showDailyForecast;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -71,16 +78,48 @@ class _WeatherPageState extends State<WeatherPage> {
       ),
       body: Container(
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Colors.lightBlueAccent, Colors.deepPurpleAccent],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
+          image: DecorationImage(
+            image: AssetImage('assets/background_image.jpg'),
+            fit: BoxFit.cover,
           ),
         ),
+
         child: Center(
-          child: Column(
+          child: showDailyForecast
+              ? Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
+            children: [
+              ElevatedButton(
+                onPressed: _toggleDailyForecast,
+                child: Text('Show Weather'),
+              ),
+              SizedBox(height: 16),
+              Text('Daily Forecast:', style: TextStyle(fontSize: 20)),
+              Expanded(
+                child: ListView.builder(
+                  itemBuilder: (context, index) {
+                    final time = DateTime.fromMillisecondsSinceEpoch(
+                        dailyForecastData[index]['dt'] * 1000);
+                    final day = DateFormat('EEEE').format(time);
+                    return ListTile(
+                      title: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(day, style: TextStyle(fontWeight: FontWeight.bold)),
+                          SizedBox(width: 16),
+                          Text('${dailyForecastData[index]['temp']['day']}°C'),
+                        ],
+                      ),
+                    );
+                  },
+                  itemCount: dailyForecastData.length,
+                ),
+              ),
+            ],
+          )
+              : Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
               TextField(
                 onChanged: (value) {
                   setState(() {
@@ -126,64 +165,22 @@ class _WeatherPageState extends State<WeatherPage> {
                   ),
                 ],
               ),
-              SizedBox(height:
-              16),
-              FloatingActionButton(onPressed:
-              _fetchWeatherData, child:
-              Icon(Icons.auto_fix_normal_sharp)),
-              SizedBox(height:
-              16),
-              Text('Temperature:',
-                  style:
-                  TextStyle(fontSize:
-                  20)),
-              SizedBox(height:
-              16),
-              Text(temperature,
-                  style:
-                  TextStyle(fontSize:
-                  36, fontWeight:
-                  FontWeight.bold)),
-              SizedBox(height:
-              16),
-              Text('Humidity:',
-                  style:
-                  TextStyle(fontSize:
-                  20)),
-              SizedBox(height:
-              16),
-              Text(humidity,
-                  style:
-                  TextStyle(fontSize:
-                  36, fontWeight:
-                  FontWeight.bold)),
-              SizedBox(height:
-              16),
-              Text('Daily Forecast:',
-                  style:
-                  TextStyle(fontSize:
-                  20)),
-              Expanded(child:
-              ListView.builder(itemBuilder:
-                  (context, index) {
-                final time =
-                DateTime.fromMillisecondsSinceEpoch(dailyForecastData[index]['dt'] * 1000);
-                final day =
-                DateFormat('EEEE').format(time);
-                return ListTile(title:
-                Row(mainAxisAlignment:
-                MainAxisAlignment.center, children:
-                [
-                  Text(day,
-                      style:
-                      TextStyle(fontWeight:
-                      FontWeight.bold)),
-                  SizedBox(width:
-                  16),
-                  Text('${dailyForecastData[index]['temp']['day']}°C'),
-                ]));
-              }, itemCount:
-              dailyForecastData.length))
+              SizedBox(height: 16),
+              FloatingActionButton(
+                onPressed: () {
+                  _fetchWeatherData();
+                  _toggleDailyForecast(); // Show weather details after fetching
+                },
+                child: Icon(Icons.auto_fix_normal_sharp),
+              ),
+              SizedBox(height: 16),
+              Text('Temperature:', style: TextStyle(fontSize: 20)),
+              SizedBox(height: 16),
+              Text(temperature, style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold)),
+              SizedBox(height: 16),
+              Text('Humidity:', style: TextStyle(fontSize: 20)),
+              SizedBox(height: 16),
+              Text(humidity, style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold)),
             ],
           ),
         ),
