@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:intl/intl.dart';
 
 void main() {
   runApp(WeatherApp());
@@ -12,7 +11,7 @@ class WeatherApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Zaifi Weather App',
+      title: 'Weather App',
       theme: ThemeData(
         primarySwatch: Colors.indigo,
       ),
@@ -33,7 +32,7 @@ class _WeatherPageState extends State<WeatherPage> {
   String currentWeather = '';
   String humidity = '';
   List dailyForecastData = [];
-  bool showDailyForecast = false; // Track if daily forecast should be shown
+  bool showDailyForecast = false;
 
   Future<void> _fetchWeatherData() async {
     final geocodingUrl = Uri.parse(
@@ -74,7 +73,7 @@ class _WeatherPageState extends State<WeatherPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Zaifi Weather App'),
+        title: Text('Weather App'),
       ),
       body: Container(
         decoration: BoxDecoration(
@@ -83,85 +82,65 @@ class _WeatherPageState extends State<WeatherPage> {
             fit: BoxFit.cover,
           ),
         ),
-
         child: Center(
-          child: showDailyForecast
-              ? Column(
+          child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              ElevatedButton(
-                onPressed: _toggleDailyForecast,
-                child: Text('Show Weather'),
-              ),
-              SizedBox(height: 16),
-              Text('Daily Forecast:', style: TextStyle(fontSize: 20)),
-              Expanded(
-                child: ListView.builder(
-                  itemBuilder: (context, index) {
-                    final time = DateTime.fromMillisecondsSinceEpoch(
-                        dailyForecastData[index]['dt'] * 1000);
-                    final day = DateFormat('EEEE').format(time);
-                    return ListTile(
-                      title: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(day, style: TextStyle(fontWeight: FontWeight.bold)),
-                          SizedBox(width: 16),
-                          Text('${dailyForecastData[index]['temp']['day']}°C'),
-                        ],
-                      ),
-                    );
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 20),
+                child: TextField(
+                  onChanged: (value) {
+                    setState(() {
+                      city = value;
+                    });
                   },
-                  itemCount: dailyForecastData.length,
-                ),
-              ),
-            ],
-          )
-              : Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              TextField(
-                onChanged: (value) {
-                  setState(() {
-                    city = value;
-                  });
-                },
-                decoration: InputDecoration(
-                  labelText: 'Enter City',
+                  style: TextStyle(color: Colors.black),
+                  decoration: InputDecoration(
+                    labelText: 'Enter City',
+                    labelStyle: TextStyle(color: Colors.white),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.indigo),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.indigo),
+                    ),
+                    prefixIcon:
+                    Icon(Icons.location_city, color: Colors.black38),
+                  ),
                 ),
               ),
               SizedBox(height: 16),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  FloatingActionButton(
+                  ElevatedButton(
                     onPressed: () {
                       setState(() {
                         city = 'Vehari';
                       });
                       _fetchWeatherData();
                     },
-                    child: Text('V'),
+                    child: Text('Vehari'),
                   ),
                   SizedBox(width: 10),
-                  FloatingActionButton(
+                  ElevatedButton(
                     onPressed: () {
                       setState(() {
                         city = 'Multan';
                       });
                       _fetchWeatherData();
                     },
-                    child: Text('M'),
+                    child: Text('Multan'),
                   ),
                   SizedBox(width: 10),
-                  FloatingActionButton(
+                  ElevatedButton(
                     onPressed: () {
                       setState(() {
                         city = 'Lahore';
                       });
                       _fetchWeatherData();
                     },
-                    child: Text('L'),
+                    child: Text('Lahore'),
                   ),
                 ],
               ),
@@ -169,18 +148,42 @@ class _WeatherPageState extends State<WeatherPage> {
               FloatingActionButton(
                 onPressed: () {
                   _fetchWeatherData();
-                  _toggleDailyForecast(); // Show weather details after fetching
                 },
-                child: Icon(Icons.auto_fix_normal_sharp),
+                child: Icon(Icons.search, color: Colors.black38),
               ),
               SizedBox(height: 16),
-              Text('Temperature:', style: TextStyle(fontSize: 20)),
+              Text(city, style: TextStyle(fontSize: 24, color: Colors.black)),
               SizedBox(height: 16),
-              Text(temperature, style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold)),
+              Text(temperature, style: TextStyle(fontSize: 40, color: Colors.black)),
               SizedBox(height: 16),
-              Text('Humidity:', style: TextStyle(fontSize: 20)),
+              Text(currentWeather, style: TextStyle(fontSize: 24, color: Colors.black)),
               SizedBox(height: 16),
-              Text(humidity, style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold)),
+              Text('Humidity:', style: TextStyle(fontSize: 24, color: Colors.black)),
+              Text(humidity, style: TextStyle(fontSize: 40, color: Colors.black)),
+              SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: _toggleDailyForecast,
+                child: Text(showDailyForecast ? 'Hide Daily Forecast' : 'Show Daily Forecast'),
+              ),
+              if (showDailyForecast)
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: dailyForecastData.length,
+                    itemBuilder: (context, index) {
+                      final dayData = dailyForecastData[index];
+                      final temp = dayData['temp']['day'].toStringAsFixed(1);
+                      final date = DateTime.fromMillisecondsSinceEpoch(dayData['dt'] * 1000);
+                      final formattedDate = '${date.day}/${date.month}/${date.year}';
+                      final weather = dayData['weather'][0]['main'];
+
+                      return ListTile(
+                        title: Text(formattedDate),
+                        subtitle: Text(weather),
+                        trailing: Text('$temp°C'),
+                      );
+                    },
+                  ),
+                ),
             ],
           ),
         ),
